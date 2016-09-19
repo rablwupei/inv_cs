@@ -1,5 +1,8 @@
-﻿using System;
+﻿using inv_cs.Properties;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,8 +10,112 @@ using System.Windows.Forms;
 
 namespace inv_cs
 {
-    class InvContext : ApplicationContext
-    {
+    class InvContext : ApplicationContext {
+
+        Bitmap imageIcon;
+        NotifyIcon trayIcon;
+
+        public InvContext() {
+            Application.ApplicationExit += new EventHandler(this.OnApplicationExit);
+            InitializeComponent();
+            trayIcon.Visible = true;
+            Manager.ui = this;
+            Manager.Start();
+        }
+
+        private void InitializeComponent() {
+            imageIcon = Resources.num;
+            trayIcon = new NotifyIcon();
+            trayIcon.BalloonTipIcon = ToolTipIcon.Info;
+        }
+
+        const string mapping = "0123456789+-!?=. ";
+        const int mapping_width = 4;
+        const int mapping_height = 7;
+        const int mapping_point_x = 0;
+        const int mapping_point_width = 1;
+        const int mapping_padding = 1;
+        const int draw_padding = 1;
+        const int icon_width = 16;
+        const int icon_height = 16;
+
+        public void RefreshIcon(float num) {
+            string numStr = null;
+            if (num < 10) {
+                numStr = num.ToString("0.##");
+            } else if (num < 100) {
+                numStr = num.ToString("0.#");
+            } else {
+                numStr = num.ToString("0");
+            }
+            RefreshIcon(numStr);
+        }
+
+        Pen pen;
+        Bitmap bitmap;
+        Graphics graph;
+
+        public void RefreshIcon(string num) {
+            var image = imageIcon;
+            String str = num;
+
+            if (graph == null) {
+                pen = new Pen(Color.Black);
+                bitmap = new Bitmap(icon_width, icon_height);
+                graph = Graphics.FromImage(bitmap);
+            }
+
+            graph.Clear(Color.Transparent);
+
+            graph.DrawLine(pen, 0, icon_height - 1, icon_width - 1, icon_height - 1);
+            graph.DrawLine(pen, 0, 0, icon_width - 1, 0);
+
+            int width = -mapping_padding;
+            for (int i = 0; i < str.Length; i++) {
+                var ch = str[i];
+                if (ch == '.') {
+                    width += mapping_point_width + draw_padding;
+                } else {
+                    var index = mapping.IndexOf(ch);
+                    if (index != -1) {
+                        width += mapping_width + draw_padding;
+                    }
+                }
+            }
+
+            int start_x = (icon_width - width) / 2;
+            int start_y = (icon_height - mapping_height) / 2;
+
+            for (int i = 0; i < str.Length; i++) {
+                var ch = str[i];
+                var index = mapping.IndexOf(ch);
+                if (index != -1) {
+                    var src_x = index * (mapping_width + mapping_padding);
+                    switch (ch) {
+                        case '.':
+                            graph.DrawImage(image, new Rectangle(start_x, start_y, mapping_point_width, mapping_height),
+                                src_x + mapping_point_x, 0, mapping_point_width, mapping_height, System.Drawing.GraphicsUnit.Pixel);
+                            start_x += mapping_point_width + draw_padding;
+                            break;
+                        case ' ':
+                            start_x += mapping_width + draw_padding;
+                            break;
+                        default:
+                            graph.DrawImage(image, new Rectangle(start_x, start_y, mapping_width, mapping_height),
+                                src_x, 0, mapping_width, mapping_height, System.Drawing.GraphicsUnit.Pixel);
+                            start_x += mapping_width + draw_padding;
+                            break;
+                    }
+                }
+            }
+
+            IntPtr Hicon = bitmap.GetHicon();
+            trayIcon.Icon = Icon.FromHandle(Hicon);
+        }
+
+        private void OnApplicationExit(object sender, EventArgs e) {
+            trayIcon.Visible = false;
+        }
 
     }
 }
