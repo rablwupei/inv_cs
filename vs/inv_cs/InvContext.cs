@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -27,6 +28,50 @@ namespace inv_cs
             imageIcon = Resources.num;
             trayIcon = new NotifyIcon();
             trayIcon.BalloonTipIcon = ToolTipIcon.Info;
+
+            var menuItem1 = new System.Windows.Forms.MenuItem();
+            var menuItem2 = new System.Windows.Forms.MenuItem();
+            var menuItem3 = new System.Windows.Forms.MenuItem();
+            var contextMenu = new System.Windows.Forms.ContextMenu();
+            contextMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] { 
+                menuItem1, 
+                menuItem2, 
+                menuItem3,
+            });
+            trayIcon.ContextMenu = contextMenu;
+
+            menuItem3.Index = 0;
+            menuItem3.Text = Manager.getVersion();
+            //menuItem3.Click += new System.EventHandler(Manager.OnRefresh);
+
+            menuItem2.Index = 1;
+            menuItem2.Text = "-";
+
+            menuItem1.Index = 2;
+            menuItem1.Text = "退出";
+            menuItem1.Click += new System.EventHandler(OnQuit);
+        }
+
+        public string text {
+            get {
+                return trayIcon.Text;
+            }
+            set {
+                if (value.Length >= 64) {
+                    SetNotifyIconText(trayIcon, value);
+                } else {
+                    trayIcon.Text = value;
+                }
+            }
+        }
+
+        public static void SetNotifyIconText(NotifyIcon ni, string text) {
+            if (text.Length >= 128) text = text.Substring(0, 127);
+            Type t = typeof(NotifyIcon);
+            BindingFlags hidden = BindingFlags.NonPublic | BindingFlags.Instance;
+            t.GetField("text", hidden).SetValue(ni, text);
+            if ((bool)t.GetField("added", hidden).GetValue(ni))
+                t.GetMethod("UpdateIcon", hidden).Invoke(ni, new object[] { true });
         }
 
         const string mapping = "0123456789+-!?=. ";
@@ -115,6 +160,10 @@ namespace inv_cs
 
         private void OnApplicationExit(object sender, EventArgs e) {
             trayIcon.Visible = false;
+        }
+
+        private void OnQuit(object sender, EventArgs e) {
+            Application.Exit();
         }
 
     }
