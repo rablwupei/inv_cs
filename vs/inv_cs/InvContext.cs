@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -86,12 +87,24 @@ namespace inv_cs
 
         public void RefreshIcon(float num) {
             string numStr = null;
-            if (num < 10) {
-                numStr = num.ToString("0.##");
-            } else if (num < 100) {
-                numStr = num.ToString("0.#");
+            if (num < 0) {
+                if (num > -1) {
+                    numStr = num.ToString("0.#");
+                } else if (num > -10) {
+                    numStr = num.ToString("0.#");
+                } else if (num > -100) {
+                    numStr = num.ToString("0");
+                } else {
+                    numStr = num.ToString("0");
+                }
             } else {
-                numStr = num.ToString("0");
+                if (num < 10) {
+                    numStr = num.ToString("0.##");
+                } else if (num < 100) {
+                    numStr = num.ToString("0.#");
+                } else {
+                    numStr = num.ToString("0");
+                }
             }
             RefreshIcon(numStr);
         }

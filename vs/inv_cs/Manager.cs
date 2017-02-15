@@ -37,18 +37,18 @@ namespace inv_cs
             ui.RefreshIcon("==");
             invList = null;
 
-            string json = null;
-            if (DEBUG) {
-                json = UTF8.GetString(Properties.Resources.list);
-	        } else {
-                if (!File.Exists(jsonPath)) {
-                    File.WriteAllBytes(jsonPath, Properties.Resources.list);
-                }
-                json = File.ReadAllText(jsonPath, UTF8);
-                listFileTime = new FileInfo(jsonPath).LastWriteTime;
-            }
-
             try {
+                string json = null;
+                if (DEBUG) {
+                    json = UTF8.GetString(Properties.Resources.list);
+                } else {
+                    if (!File.Exists(jsonPath)) {
+                        File.WriteAllBytes(jsonPath, Properties.Resources.list);
+                    }
+                    json = File.ReadAllText(jsonPath, UTF8);
+                    listFileTime = new FileInfo(jsonPath).LastWriteTime;
+                }
+
                 invList = JsonConvert.DeserializeObject<InvList>(json);
             } catch (Exception) {
                 invList = null;

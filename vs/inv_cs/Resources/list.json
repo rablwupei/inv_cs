@@ -1,13 +1,13 @@
 {
-	"interval" : 5,
+	"interval" : 60,
 	"list" : [
 		{
-			"url" : "http://hq.sinajs.cn/list=sh601006",
+			"url" : "http://hq.sinajs.cn/list=sh000001",
 			"urlType" : "sina",
 			"param1" : "",
 			"param2" : "",
 			"param3" : "",
-			"percent" : false
+			"percent" : true
 		},
 		{
 			"url" : "http://hq.sinajs.cn/list=sz131810",
@@ -16,6 +16,14 @@
 			"param2" : "",
 			"param3" : "",
 			"percent" : false
-		}
+		},
+		{
+			"url" : "http://hq.sinajs.cn/list=sz150176",
+			"urlType" : "sina",
+			"param1" : "",
+			"param2" : "",
+			"param3" : "",
+			"percent" : true
+		},
 	],
 }
