@@ -46,7 +46,7 @@ namespace inv_cs
                         File.WriteAllBytes(jsonPath, Properties.Resources.list);
                     }
                     json = File.ReadAllText(jsonPath, UTF8);
-                    listFileTime = new FileInfo(jsonPath).LastWriteTime;
+                    listFileTime = File.GetLastWriteTime(jsonPath);
                 }
 
                 invList = JsonConvert.DeserializeObject<InvList>(json);
@@ -136,7 +136,7 @@ namespace inv_cs
             if (!File.Exists(jsonPath)) {
                 return false;
             }
-            var curFileTime = new FileInfo(jsonPath).LastWriteTime;
+            var curFileTime = File.GetLastWriteTime(jsonPath);
             if (curFileTime != listFileTime) {
                 listFileTime = curFileTime;
                 return true;
